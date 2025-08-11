@@ -145,7 +145,7 @@ export default function Portfolio() {
               } hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/25`}
             >
               <img
-                src="/placeholder.svg?height=160&width=160"
+                src="/sus.jpg?height=160&width=160"
                 alt="Sushant Patil - Profile Picture"
                 className="w-full h-full rounded-full object-cover border-4 border-gradient-to-br from-blue-500 to-purple-600 shadow-xl"
                 style={{
