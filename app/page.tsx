@@ -145,12 +145,10 @@ export default function Portfolio() {
               } hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/25`}
             >
               <img
-                src="/sus.jpg?height=160&width=160"
+                src="/sus.jpg"
                 alt="Sushant Patil - Profile Picture"
                 className="w-full h-full rounded-full object-cover border-4 border-gradient-to-br from-blue-500 to-purple-600 shadow-xl"
-                style={{
-                  borderImage: "linear-gradient(135deg, #3b82f6, #8b5cf6) 1",
-                }}
+
               />
             </div>
             <h1
@@ -373,7 +371,7 @@ export default function Portfolio() {
                 description:
                   "Personal Budget Management, Expense Tracking, Financial Planning, Savings Identification, Spending Reduction, Data-Driven Decision Making, Goal Achievement.",
                 tools: ["Python", "Django", "JavaScript", "HTML"],
-                link: "#",
+                link: "https://github.com/thesushpatil/ExpenditureManagement",
                 delay: "delay-100",
               },
               {
@@ -381,7 +379,7 @@ export default function Portfolio() {
                 description:
                   "TensorFlow-based deep learning model for MNIST digit recognition, achieving accuracy [0.97%] by applying Dense layers, ReLU, categorical cross-entropy, and the SGD optimizer.",
                 tools: ["Python", "TensorFlow", "NumPy"],
-                link: "#",
+                link: "https://github.com/thesushpatil/mnist_HandwrittenDigit",
                 delay: "delay-300",
               },
               {
@@ -389,7 +387,7 @@ export default function Portfolio() {
                 description:
                   "Encompasses various aspects of time, date, timer management and calendar management. Displays real-time current date and time, Generates calendar for user-specified months and years.",
                 tools: ["C", "DSA"],
-                link: "#",
+                link: "https://github.com/thesushpatil/Digital_Clock",
                 delay: "delay-500",
               },
             ].map((project, index) => (
