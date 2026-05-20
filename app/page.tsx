@@ -1,25 +1,244 @@
 "use client"
 
-import type React from "react"
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Phone,
+  MapPin,
+  ExternalLink,
+  Award,
+  Users,
+  Code,
+  Send,
+  Briefcase,
+  GraduationCap,
+  ChevronUp,
+  Menu,
+  X,
+  Calendar,
+  Terminal,
+  Database,
+  Globe,
+  Zap,
+  ChevronDown,
+  Trophy,
+  Building2,
+  Rocket,
+  Shield,
+  Download,
+  Star,
+} from "lucide-react"
 
-import { useState, useEffect } from "react"
-import { Github, Linkedin, Mail, Phone, MapPin, ExternalLink, Award, Users, Code, Send } from "lucide-react"
+/* ================================================================
+   DATA
+   ================================================================ */
 
+const NAV_ITEMS = [
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "education", label: "Education" },
+  { id: "skills", label: "Skills" },
+  { id: "projects", label: "Projects" },
+  { id: "achievements", label: "Achievements" },
+  { id: "contact", label: "Contact" },
+]
+
+const ROLES = [
+  "Full-Stack Developer",
+  "ISRO Research Intern",
+  "Backend Engineer",
+  "ML Enthusiast",
+  "Open Source Contributor",
+]
+
+const STATS = [
+  { label: "CGPA", value: "8.55", suffix: "" },
+  { label: "Internships", value: "2", suffix: "+" },
+  { label: "Projects", value: "3", suffix: "+" },
+  { label: "Certifications", value: "4", suffix: "+" },
+]
+
+const EXPERIENCES = [
+  {
+    company: "Space Applications Centre (ISRO)",
+    role: "Research Intern",
+    period: "Nov 2025 – Mar 2026",
+    location: "Ahmedabad, India · On-site",
+    points: [
+      "Developed Graphical Telecommand collection directly from various types of payload block diagrams for specific payload configurations using JavaScript, reducing manual documentation effort significantly.",
+      "Built a robust Python-Flask API to synchronize dynamic UI sequences with SQL databases, ensuring mission-critical data integrity for hardware linkage systems.",
+    ],
+    Icon: Rocket,
+    gradient: "from-orange-400 to-amber-500",
+    bg: "rgba(251, 146, 60, 0.1)",
+    borderColor: "rgba(251, 146, 60, 0.3)",
+  },
+  {
+    company: "Infosys Springboard",
+    role: "Backend Developer Intern",
+    period: "Sep 2025 – Nov 2025",
+    location: "Remote",
+    subtitle: "Digital Civic Engagement & Petition Platform",
+    points: [
+      "Built RESTful APIs for petition creation, polls, filtering, and CRUD operations; integrated endpoints with frontend teams to ensure reliable signature storage across 500+ submissions.",
+      "Implemented role-based authentication (users/admins/volunteers), token & session management, input validation, and delivered complete API documentation and test suites.",
+    ],
+    Icon: Building2,
+    gradient: "from-blue-400 to-cyan-500",
+    bg: "rgba(56, 189, 248, 0.1)",
+    borderColor: "rgba(56, 189, 248, 0.3)",
+  },
+]
+
+const EDUCATION_DATA = [
+  {
+    institution: "Tatyasaheb Kore Institute of Engineering and Technology",
+    degree: "Bachelor of Technology — Computer Science & Engineering",
+    grade: "CGPA: 8.55",
+    period: "Oct 2022 – Jun 2026",
+    location: "Warananagar, India",
+  },
+  {
+    institution: "S. M. Lohia College, Kolhapur",
+    degree: "HSC (12th Standard)",
+    grade: "78.33%",
+    period: "2021 – 2022",
+    location: "Kolhapur, India",
+  },
+  {
+    institution: "S. M. Lohia High School, Kolhapur",
+    degree: "SSC (10th Standard)",
+    grade: "93.40%",
+    period: "2019 – 2020",
+    location: "Kolhapur, India",
+  },
+]
+
+const SKILL_CATEGORIES = [
+  {
+    title: "Programming Languages",
+    skills: ["Java", "Python", "C++", "SQL"],
+    Icon: Code,
+    gradient: "from-violet-500 to-purple-600",
+  },
+  {
+    title: "Web & Backend",
+    skills: ["Flask", "Django", "Node.js", "REST APIs", "HTML", "CSS"],
+    Icon: Globe,
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    title: "Databases",
+    skills: ["MySQL", "MongoDB", "SQLite"],
+    Icon: Database,
+    gradient: "from-emerald-400 to-green-500",
+  },
+  {
+    title: "Tools & Platforms",
+    skills: ["Git", "GitHub", "Linux", "Postman"],
+    Icon: Terminal,
+    gradient: "from-orange-400 to-amber-500",
+  },
+  {
+    title: "Core Competencies",
+    skills: ["DSA", "AI", "Operating Systems", "Computer Networks", "Problem Solving"],
+    Icon: Zap,
+    gradient: "from-pink-500 to-rose-500",
+  },
+]
+
+const PROJECTS = [
+  {
+    title: "Personal Expenditure Management System",
+    description:
+      "Full-stack web application for personal expense management with budget & savings tracking. Generated monthly reports of user expenditure patterns. Implemented user authentication and an analytics dashboard to help users analyze spending habits.",
+    tools: ["Django", "JavaScript", "HTML", "SQLite"],
+    link: "https://github.com/thesushpatil",
+    year: "2025",
+    gradient: "from-violet-500 to-indigo-500",
+  },
+  {
+    title: "Deepfake Video Detection System",
+    description:
+      "End-to-end deepfake detection pipeline — preprocessing, feature extraction, training & evaluation — using EfficientNetB0, achieving 92% accuracy. Designed a browser extension for high-precision classification of manipulated video frames across social media platforms.",
+    tools: ["TensorFlow", "OpenCV", "EfficientNetB0"],
+    link: "https://github.com/thesushpatil",
+    year: "2026",
+    gradient: "from-cyan-500 to-blue-500",
+  },
+]
+
+const CERTIFICATIONS = [
+  { name: "Java Programming Certificate (Elite Gold)", provider: "NPTEL", year: "2025", Icon: Trophy },
+  { name: "Frontend Developer Professional Certificate", provider: "Meta", year: "2025", Icon: Award },
+  { name: "Backend Developer Professional Certificate", provider: "Meta", year: "2025", Icon: Award },
+  { name: "Python Professional Certificate", provider: "Meta", year: "2025", Icon: Award },
+]
+
+const LEADERSHIP = [
+  {
+    role: "Senior Adviser Core Member",
+    org: "GDG on Campus (TKIET)",
+    description: "Contributed to organizing tech workshops and community events for 200+ developers.",
+    Icon: Users,
+  },
+  {
+    role: "Technical Co-Head",
+    org: "T-LUG (TKIET Linux User Group)",
+    description: "Led Linux and open-source software initiatives and workshops on campus, 2025.",
+    Icon: Terminal,
+  },
+  {
+    role: "Participant",
+    org: "Smart India Hackathon 2024",
+    description: "National Level Hackathon — collaborated on innovative solutions to real-world problems.",
+    Icon: Rocket,
+  },
+]
+
+/* ================================================================
+   PARTICLES DATA (generated once)
+   ================================================================ */
+const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  size: Math.random() * 3 + 1,
+  x: Math.random() * 100,
+  duration: Math.random() * 25 + 15,
+  delay: Math.random() * 25,
+  type: i % 3 === 0 ? "particle-cyan" : i % 2 === 0 ? "particle-purple" : "particle-blue",
+}))
+
+/* ================================================================
+   COMPONENT
+   ================================================================ */
 export default function Portfolio() {
+  // ---- State ----
   const [activeSection, setActiveSection] = useState("about")
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
   const [isLoaded, setIsLoaded] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  })
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [currentRoleIndex, setCurrentRoleIndex] = useState(0)
+  const [currentText, setCurrentText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formSent, setFormSent] = useState(false)
 
+  // ---- Refs ----
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  /* ---------- Load animation ---------- */
   useEffect(() => {
-    setIsLoaded(true)
+    const timer = setTimeout(() => setIsLoaded(true), 100)
+    return () => clearTimeout(timer)
+  }, [])
 
+  /* ---------- Intersection Observer ---------- */
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -28,190 +247,291 @@ export default function Portfolio() {
           }
         })
       },
-      { threshold: 0.1, rootMargin: "-50px" },
+      { threshold: 0.08, rootMargin: "-30px" },
     )
 
-    const sections = ["about", "education", "skills", "projects", "certifications", "activities", "contact"]
-    sections.forEach((sectionId) => {
-      const element = document.getElementById(sectionId)
-      if (element) observer.observe(element)
+    const sectionIds = ["about", "experience", "education", "skills", "projects", "achievements", "contact"]
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
     })
 
     return () => observer.disconnect()
   }, [])
 
+  /* ---------- Scroll tracking ---------- */
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["about", "education", "skills", "projects", "certifications", "activities", "contact"]
-      const scrollPosition = window.scrollY + 100
+      // Progress
+      const total = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(total > 0 ? (window.scrollY / total) * 100 : 0)
 
-      for (const section of sections) {
-        const element = document.getElementById(section)
-        if (element) {
-          const offsetTop = element.offsetTop
-          const offsetHeight = element.offsetHeight
+      // Back to top
+      setShowBackToTop(window.scrollY > 500)
 
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section)
-            break
-          }
+      // Active section
+      const sectionIds = ["about", "experience", "education", "skills", "projects", "achievements", "contact"]
+      const scrollPos = window.scrollY + 120
+      for (const id of sectionIds) {
+        const el = document.getElementById(id)
+        if (el && scrollPos >= el.offsetTop && scrollPos < el.offsetTop + el.offsetHeight) {
+          setActiveSection(id)
+          break
         }
       }
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+  /* ---------- Typewriter effect ---------- */
+  useEffect(() => {
+    const role = ROLES[currentRoleIndex]
+    const speed = isDeleting ? 40 : 80
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        const next = role.substring(0, currentText.length + 1)
+        setCurrentText(next)
+        if (next === role) {
+          setTimeout(() => setIsDeleting(true), 2200)
+        }
+      } else {
+        const next = role.substring(0, currentText.length - 1)
+        setCurrentText(next)
+        if (next === "") {
+          setIsDeleting(false)
+          setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length)
+        }
+      }
+    }, speed)
+
+    return () => clearTimeout(timeout)
+  }, [currentText, isDeleting, currentRoleIndex])
+
+  /* ---------- Body scroll lock for mobile menu ---------- */
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : ""
+    return () => {
+      document.body.style.overflow = ""
     }
-  }
+  }, [mobileMenuOpen])
+
+  /* ---------- Helpers ---------- */
+  const scrollToSection = useCallback((id: string) => {
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: "smooth" })
+    setMobileMenuOpen(false)
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    })
+    await new Promise((r) => setTimeout(r, 1200))
+    setFormData({ name: "", email: "", subject: "", message: "" })
     setIsSubmitting(false)
-    alert("Thank you for your message! I'll get back to you soon.")
+    setFormSent(true)
+    setTimeout(() => setFormSent(false), 4000)
   }
 
+  const sectionClass = (id: string, extra = "") =>
+    `${visibleSections.has(id) ? "section-visible" : "section-hidden"} ${extra}`
+
+  /* ================================================================
+     RENDER
+     ================================================================ */
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 z-50">
-        <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen relative">
+      {/* Scroll Progress Bar */}
+      <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} />
+
+      {/* Background Effects */}
+      <div className="bg-mesh">
+        <div className="bg-mesh-orb bg-mesh-orb-1" />
+        <div className="bg-mesh-orb bg-mesh-orb-2" />
+        <div className="bg-mesh-orb bg-mesh-orb-3" />
+      </div>
+      <div className="grid-pattern" />
+
+      {/* Particles */}
+      {PARTICLES.map((p) => (
+        <div
+          key={p.id}
+          className={`particle ${p.type}`}
+          style={{
+            width: p.size,
+            height: p.size,
+            left: `${p.x}%`,
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+          }}
+        />
+      ))}
+
+      {/* ====================== NAVIGATION ====================== */}
+      <nav className="glass-nav fixed top-0 left-0 right-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <div className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              Sushant Patil
-            </div>
-            <div className="hidden md:flex space-x-1">
-              {[
-                { id: "about", label: "About" },
-                { id: "education", label: "Education" },
-                { id: "skills", label: "Skills" },
-                { id: "projects", label: "Projects" },
-                { id: "certifications", label: "Certifications" },
-                { id: "activities", label: "Activities" },
-                { id: "contact", label: "Contact" },
-              ].map((item) => (
+            {/* Logo */}
+            <button
+              onClick={() => scrollToSection("about")}
+              className="font-bold text-lg tracking-tight gradient-text-static hover:opacity-80 transition-opacity"
+            >
+              {"<SP />"}
+            </button>
+
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-1">
+              {NAV_ITEMS.map((item) => (
                 <button
                   key={item.id}
+                  id={`nav-${item.id}`}
                   onClick={() => scrollToSection(item.id)}
-                  className={`px-3 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
-                    activeSection === item.id
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-gray-300 hover:text-blue-400 hover:bg-gray-700"
-                  }`}
+                  className={`nav-link ${activeSection === item.id ? "active" : ""}`}
                 >
                   {item.label}
                 </button>
               ))}
             </div>
+
+            {/* Mobile Hamburger */}
+            <button
+              id="mobile-menu-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero/About Section */}
+      {/* Mobile Menu Overlay */}
+      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
+        <button
+          onClick={() => setMobileMenuOpen(false)}
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white"
+          aria-label="Close menu"
+        >
+          <X className="w-7 h-7" />
+        </button>
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => scrollToSection(item.id)}
+            className="mobile-menu-link"
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ====================== HERO / ABOUT ====================== */}
       <section
         id="about"
-        className={`pt-20 pb-16 px-4 transition-all duration-1000 ${
-          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
+        ref={heroRef}
+        className="relative z-10 pt-24 pb-20 px-4 sm:px-6 min-h-screen flex items-center"
       >
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="text-center">
+            {/* Profile Image */}
             <div
-              className={`w-40 h-40 mx-auto mb-6 transition-all duration-1000 delay-300 transform ${
-                isLoaded ? "scale-100 rotate-0" : "scale-0 rotate-180"
-              } hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/25`}
+              className={`mx-auto mb-8 transition-all duration-1000 ${
+                isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-75"
+              }`}
+              style={{ transitionDelay: "200ms" }}
             >
-              <img
-                src="/sus.jpg"
-                alt="Sushant Patil - Profile Picture"
-                className="w-full h-full rounded-full object-cover border-4 border-gradient-to-br from-blue-500 to-purple-600 shadow-xl"
-
-              />
+              <div className="profile-ring w-36 h-36 sm:w-44 sm:h-44 mx-auto">
+                <img
+                  src="/sus.jpg"
+                  alt="Sushant Patil"
+                  className="w-full h-full rounded-full object-cover"
+                  loading="eager"
+                />
+              </div>
             </div>
+
+            {/* Name */}
             <h1
-              className={`text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent transition-all duration-1000 delay-500 ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              className={`text-4xl sm:text-5xl md:text-7xl font-extrabold mb-4 tracking-tight transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
+              style={{ transitionDelay: "400ms" }}
             >
-              Sushant Patil
+              <span className="gradient-text">Sushant Patil</span>
             </h1>
-            <h2
-              className={`text-xl md:text-2xl text-blue-400 mb-6 transition-all duration-1000 delay-600 ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+
+            {/* Typewriter Role */}
+            <div
+              className={`h-10 mb-6 transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
+              style={{ transitionDelay: "600ms" }}
             >
-              Computer Science Student & Full-Stack Developer
-            </h2>
+              <span className="text-lg sm:text-xl md:text-2xl font-medium text-indigo-300">
+                {currentText}
+              </span>
+              <span className="typewriter-cursor" />
+            </div>
+
+            {/* Bio */}
             <p
-              className={`text-lg text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed transition-all duration-1000 delay-700 ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              className={`text-base sm:text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
+              style={{ transitionDelay: "750ms" }}
             >
-              Aspiring computer science professional seeking an opportunity to apply my skills in software development,
-              machine learning, and full-stack technologies. Interested in contributing to innovative projects,
-              improving technical expertise, and growing within a forward-thinking organization.
+              Computer Science Engineer with hands-on experience at{" "}
+              <span className="text-amber-400 font-medium">ISRO</span> and{" "}
+              <span className="text-cyan-400 font-medium">Infosys</span>. Passionate about building
+              scalable backend systems, machine learning pipelines, and modern web applications.
             </p>
 
-            {/* Contact Info */}
+            {/* Contact Quick Links */}
             <div
-              className={`flex flex-wrap justify-center gap-6 mb-8 transition-all duration-1000 delay-900 ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              className={`flex flex-wrap justify-center gap-4 sm:gap-6 mb-10 text-sm transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
+              style={{ transitionDelay: "900ms" }}
             >
-              <div className="flex items-center gap-2 text-gray-300 hover:text-blue-400 transition-colors duration-300">
-                <MapPin className="w-4 h-4" />
-                <span>Kolhapur, Maharashtra</span>
-              </div>
+              <span className="flex items-center gap-2 text-slate-400">
+                <MapPin className="w-4 h-4 text-indigo-400" />
+                Kolhapur, Maharashtra
+              </span>
               <a
                 href="mailto:sushantpatil6217@gmail.com"
-                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:scale-105"
+                className="flex items-center gap-2 text-slate-400 hover:text-indigo-300 transition-colors"
               >
-                <Mail className="w-4 h-4" />
-                <span>sushantpatil6217@gmail.com</span>
+                <Mail className="w-4 h-4 text-indigo-400" />
+                sushantpatil6217@gmail.com
               </a>
               <a
                 href="tel:+919975806217"
-                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:scale-105"
+                className="flex items-center gap-2 text-slate-400 hover:text-indigo-300 transition-colors"
               >
-                <Phone className="w-4 h-4" />
-                <span>+91 9975806217</span>
+                <Phone className="w-4 h-4 text-indigo-400" />
+                +91 9975806217
               </a>
             </div>
 
-            {/* Social Links */}
+            {/* Social Icons */}
             <div
-              className={`flex justify-center gap-4 transition-all duration-1000 delay-1100 ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              className={`flex justify-center gap-4 mb-14 transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
+              style={{ transitionDelay: "1050ms" }}
             >
               <a
                 href="https://linkedin.com/in/thesushpatil"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 bg-gray-800 rounded-full hover:bg-blue-600 transition-all duration-300 transform hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
+                className="social-icon linkedin"
+                aria-label="LinkedIn"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -219,130 +539,192 @@ export default function Portfolio() {
                 href="https://github.com/thesushpatil"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 bg-gray-800 rounded-full hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 hover:shadow-lg"
+                className="social-icon github"
+                aria-label="GitHub"
               >
                 <Github className="w-5 h-5" />
               </a>
+              <a
+                href="mailto:sushantpatil6217@gmail.com"
+                className="social-icon email"
+                aria-label="Email"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+            </div>
+
+            {/* Stats Row */}
+            <div
+              className={`grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mb-12 transition-all duration-1000 ${
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+              style={{ transitionDelay: "1200ms" }}
+            >
+              {STATS.map((stat, i) => (
+                <div key={i} className="stat-card">
+                  <div className="text-2xl sm:text-3xl font-bold gradient-text-static">
+                    {stat.value}
+                    {stat.suffix}
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-500 mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Scroll Indicator */}
+            <div
+              className={`transition-all duration-1000 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              style={{ transitionDelay: "1500ms" }}
+            >
+              <button
+                onClick={() => scrollToSection("experience")}
+                className="text-slate-500 hover:text-indigo-400 transition-colors"
+                aria-label="Scroll down"
+              >
+                <ChevronDown className="w-6 h-6 mx-auto" style={{ animation: "scroll-bounce 2s ease-in-out infinite" }} />
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Education Section */}
-      <section
-        id="education"
-        className={`py-16 px-4 transition-all duration-1000 ${
-          visibleSections.has("education") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Education
+      {/* ====================== EXPERIENCE ====================== */}
+      <section id="experience" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("experience")}`}>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Experience</span>
           </h2>
-          <div className="space-y-8">
-            {[
-              {
-                institution: "Tatyasaheb Kore Institute Of Engineering & Technology",
-                degree: "BTech in Computer Science",
-                grade: "CGPA: 8.51",
-                period: "2022 – 2026",
-                delay: "delay-100",
-              },
-              {
-                institution: "S. M. Lohia College, Kolhapur",
-                degree: "HSC",
-                grade: "Percentage: 78.33",
-                period: "2021 – 2022",
-                delay: "delay-300",
-              },
-              {
-                institution: "S. M. Lohia Highschool, Kolhapur",
-                degree: "SSC",
-                grade: "Percentage: 93.40",
-                period: "2019 – 2020",
-                delay: "delay-500",
-              },
-            ].map((edu, index) => (
-              <div
-                key={index}
-                className={`bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 ${
-                  visibleSections.has("education")
-                    ? `opacity-100 translate-x-0 ${edu.delay}`
-                    : "opacity-0 -translate-x-10"
-                }`}
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold text-blue-400 mb-2">{edu.institution}</h3>
-                    <p className="text-gray-300 mb-1">{edu.degree}</p>
-                    <p className="text-green-400 font-medium">{edu.grade}</p>
-                  </div>
-                  <div className="mt-4 md:mt-0">
-                    <span className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300">{edu.period}</span>
+
+          <div className="relative pl-12 sm:pl-14">
+            {/* Timeline line */}
+            <div className="timeline-line" />
+
+            <div className="space-y-12">
+              {EXPERIENCES.map((exp, i) => (
+                <div key={i} className="relative" style={{ animationDelay: `${i * 200}ms` }}>
+                  {/* Timeline dot */}
+                  <div className="timeline-dot" style={{ top: "28px" }} />
+
+                  <div
+                    className="glass-card p-6 sm:p-8"
+                    style={{
+                      background: exp.bg,
+                      borderColor: exp.borderColor,
+                    }}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`p-2.5 rounded-xl bg-gradient-to-br ${exp.gradient} shrink-0`}
+                        >
+                          <exp.Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg sm:text-xl font-bold text-white">{exp.company}</h3>
+                          <p className="text-indigo-300 font-medium text-sm sm:text-base">{exp.role}</p>
+                          {exp.subtitle && (
+                            <p className="text-slate-500 text-sm italic mt-0.5">{exp.subtitle}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end gap-1 text-sm text-slate-400 shrink-0">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {exp.period}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {exp.location}
+                        </span>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-3 ml-1">
+                      {exp.points.map((point, j) => (
+                        <li key={j} className="flex items-start gap-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+                          <span className="mt-2 w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section
-        id="skills"
-        className={`py-16 px-4 bg-gray-800/50 transition-all duration-1000 ${
-          visibleSections.has("skills") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Skills
+      {/* ====================== EDUCATION ====================== */}
+      <section id="education" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("education")}`}>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Education</span>
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                title: "Programming Languages",
-                skills: ["Python", "Java", "C/C++", "JavaScript", "HTML", "CSS"],
-                icon: <Code className="w-6 h-6" />,
-                delay: "delay-100",
-              },
-              {
-                title: "Libraries/Frameworks",
-                skills: ["Django", "Bootstrap", "Angular", "React", "NumPy", "TensorFlow"],
-                icon: <Award className="w-6 h-6" />,
-                delay: "delay-300",
-              },
-              {
-                title: "Tools / Platforms",
-                skills: ["Git and Github", "Linux", "Postman", "Jupyter Notebook", "Google Colab"],
-                icon: <Users className="w-6 h-6" />,
-                delay: "delay-500",
-              },
-              {
-                title: "Databases",
-                skills: ["MySQL", "PostgreSQL"],
-                icon: <ExternalLink className="w-6 h-6" />,
-                delay: "delay-700",
-              },
-            ].map((category, index) => (
+
+          <div className="relative pl-12 sm:pl-14">
+            <div className="timeline-line" />
+
+            <div className="space-y-10">
+              {EDUCATION_DATA.map((edu, i) => (
+                <div key={i} className="relative">
+                  <div className="timeline-dot" style={{ top: "28px" }} />
+
+                  <div className="glass-card p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shrink-0">
+                          <GraduationCap className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-white">{edu.institution}</h3>
+                          <p className="text-indigo-300 text-sm sm:text-base">{edu.degree}</p>
+                          <p className="text-emerald-400 font-semibold text-sm mt-1">{edu.grade}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end gap-1 text-sm text-slate-400 shrink-0">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {edu.period}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {edu.location}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== SKILLS ====================== */}
+      <section id="skills" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("skills")}`}>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Technical Skills</span>
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {SKILL_CATEGORIES.map((cat, i) => (
               <div
-                key={index}
-                className={`bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 ${
-                  visibleSections.has("skills")
-                    ? `opacity-100 translate-y-0 ${category.delay}`
-                    : "opacity-0 translate-y-10"
-                }`}
+                key={i}
+                className={`glass-card p-6 ${visibleSections.has("skills") ? "section-visible stagger-" + (i + 1) : "section-hidden"}`}
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-blue-600 rounded-lg">{category.icon}</div>
-                  <h3 className="text-lg font-semibold text-blue-400">{category.title}</h3>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className={`p-2.5 rounded-xl bg-gradient-to-br ${cat.gradient}`}>
+                    <cat.Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">{cat.title}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill, skillIndex) => (
-                    <span
-                      key={skillIndex}
-                      className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:scale-105"
-                    >
+                  {cat.skills.map((skill, j) => (
+                    <span key={j} className="skill-tag">
                       {skill}
                     </span>
                   ))}
@@ -353,69 +735,51 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Projects Section */}
-      <section
-        id="projects"
-        className={`py-16 px-4 transition-all duration-1000 ${
-          visibleSections.has("projects") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Projects
+      {/* ====================== PROJECTS ====================== */}
+      <section id="projects" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("projects")}`}>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Projects</span>
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Personal Expenditure Management",
-                description:
-                  "Personal Budget Management, Expense Tracking, Financial Planning, Savings Identification, Spending Reduction, Data-Driven Decision Making, Goal Achievement.",
-                tools: ["Python", "Django", "JavaScript", "HTML"],
-                link: "https://github.com/thesushpatil/ExpenditureManagement",
-                delay: "delay-100",
-              },
-              {
-                title: "Handwritten Digit Recognition",
-                description:
-                  "TensorFlow-based deep learning model for MNIST digit recognition, achieving accuracy [0.97%] by applying Dense layers, ReLU, categorical cross-entropy, and the SGD optimizer.",
-                tools: ["Python", "TensorFlow", "NumPy"],
-                link: "https://github.com/thesushpatil/mnist_HandwrittenDigit",
-                delay: "delay-300",
-              },
-              {
-                title: "Digital Clock",
-                description:
-                  "Encompasses various aspects of time, date, timer management and calendar management. Displays real-time current date and time, Generates calendar for user-specified months and years.",
-                tools: ["C", "DSA"],
-                link: "https://github.com/thesushpatil/Digital_Clock",
-                delay: "delay-500",
-              },
-            ].map((project, index) => (
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {PROJECTS.map((proj, i) => (
               <div
-                key={index}
-                className={`bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 group ${
-                  visibleSections.has("projects")
-                    ? `opacity-100 translate-y-0 ${project.delay}`
-                    : "opacity-0 translate-y-10"
+                key={i}
+                className={`glass-card p-6 sm:p-8 group ${
+                  visibleSections.has("projects") ? "section-visible stagger-" + (i + 1) : "section-hidden"
                 }`}
               >
+                {/* Header */}
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
-                    {project.title}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${proj.gradient}`}>
+                      <Code className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-xs text-slate-500 font-mono">{proj.year}</span>
+                  </div>
                   <a
-                    href={project.link}
-                    className="p-2 bg-gray-700 rounded-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-110"
+                    href={proj.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-all group-hover:text-indigo-400"
+                    aria-label={`View ${proj.title} on GitHub`}
                   >
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
-                <p className="text-gray-300 mb-4 text-sm leading-relaxed">{project.description}</p>
+
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">
+                  {proj.title}
+                </h3>
+
+                <p className="text-slate-400 text-sm leading-relaxed mb-5">{proj.description}</p>
+
                 <div className="flex flex-wrap gap-2">
-                  {project.tools.map((tool, toolIndex) => (
+                  {proj.tools.map((tool, j) => (
                     <span
-                      key={toolIndex}
-                      className="bg-gray-700 px-3 py-1 rounded-full text-xs text-gray-300 hover:bg-blue-600 hover:text-white transition-all duration-300 transform hover:scale-105"
+                      key={j}
+                      className="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-slate-400 border border-white/10"
                     >
                       {tool}
                     </span>
@@ -427,137 +791,122 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Certifications Section */}
-      <section
-        id="certifications"
-        className={`py-16 px-4 bg-gray-800/50 transition-all duration-1000 ${
-          visibleSections.has("certifications") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
+      {/* ====================== ACHIEVEMENTS ====================== */}
+      <section id="achievements" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("achievements")}`}>
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Certifications
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Achievements & Leadership</span>
           </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { name: "FrontEnd Developer Certificate", provider: "Meta", year: "2025", delay: "delay-100" },
-              { name: "BackEnd Developer Certificate", provider: "Meta", year: "2025", delay: "delay-200" },
-              { name: "Angular Developer Certificate", provider: "Infosys", year: "2025", delay: "delay-300" },
-              { name: "Python Professional Certificate", provider: "Meta", year: "2025", delay: "delay-400" },
-            ].map((cert, index) => (
-              <div
-                key={index}
-                className={`bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 ${
-                  visibleSections.has("certifications")
-                    ? `opacity-100 translate-x-0 ${cert.delay}`
-                    : "opacity-0 -translate-x-10"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Award className="w-5 h-5 text-yellow-500" />
-                  <h3 className="text-lg font-semibold text-blue-400">{cert.name}</h3>
+
+          {/* Certifications */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold text-indigo-300 mb-8 flex items-center gap-2 justify-center">
+              <Trophy className="w-5 h-5 text-amber-400" />
+              Certifications
+            </h3>
+            <div className="grid sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
+              {CERTIFICATIONS.map((cert, i) => (
+                <div
+                  key={i}
+                  className={`glass-card p-5 flex items-center gap-4 ${
+                    visibleSections.has("achievements") ? "section-visible stagger-" + (i + 1) : "section-hidden"
+                  }`}
+                >
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shrink-0">
+                    <cert.Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base font-semibold text-white leading-snug">{cert.name}</h4>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                      <span>{cert.provider}</span>
+                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <span>{cert.year}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-gray-300">{cert.provider}</p>
-                  <span className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300">{cert.year}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Leadership */}
+          <div>
+            <h3 className="text-xl font-semibold text-indigo-300 mb-8 flex items-center gap-2 justify-center">
+              <Shield className="w-5 h-5 text-emerald-400" />
+              Leadership & Volunteering
+            </h3>
+            <div className="grid sm:grid-cols-3 gap-5 max-w-5xl mx-auto">
+              {LEADERSHIP.map((item, i) => (
+                <div
+                  key={i}
+                  className={`glass-card p-6 text-center ${
+                    visibleSections.has("achievements") ? "section-visible stagger-" + (i + 3) : "section-hidden"
+                  }`}
+                >
+                  <div className="mx-auto mb-4 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
+                    <item.Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-white mb-1">{item.role}</h4>
+                  <p className="text-indigo-300 text-sm font-medium mb-3">{item.org}</p>
+                  <p className="text-slate-400 text-sm leading-relaxed">{item.description}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Activities Section */}
-      <section
-        id="activities"
-        className={`py-16 px-4 transition-all duration-1000 ${
-          visibleSections.has("activities") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Participation and Volunteering
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { activity: "Smart India Hackathon", year: "2024", delay: "delay-100" },
-              { activity: "Build with AI, Google Developer Group", year: "2025", delay: "delay-200" },
-              { activity: "Pune FOSS", year: "2025", delay: "delay-300" },
-              { activity: "Technical Co-Head, TLUG", year: "2025", delay: "delay-400" },
-            ].map((activity, index) => (
-              <div
-                key={index}
-                className={`bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 ${
-                  visibleSections.has("activities")
-                    ? `opacity-100 translate-x-0 ${activity.delay}`
-                    : "opacity-0 translate-x-10"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Users className="w-5 h-5 text-green-500" />
-                  <h3 className="text-lg font-semibold text-blue-400">{activity.activity}</h3>
-                </div>
-                <span className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300">{activity.year}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section
-        id="contact"
-        className={`py-16 px-4 bg-gray-800/50 transition-all duration-1000 ${
-          visibleSections.has("contact") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Get In Touch
+      {/* ====================== CONTACT ====================== */}
+      <section id="contact" className={`relative z-10 py-20 px-4 sm:px-6 ${sectionClass("contact")}`}>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
+            <span className="section-heading gradient-text-static">Get In Touch</span>
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Info */}
-            <div
-              className={`space-y-6 transition-all duration-1000 delay-200 ${
-                visibleSections.has("contact") ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
-              }`}
-            >
+          <div className="grid md:grid-cols-5 gap-10">
+            {/* Left: Contact Info */}
+            <div className="md:col-span-2 space-y-6">
               <div>
-                <h3 className="text-xl font-semibold mb-4 text-blue-400">Let's Connect</h3>
-                <p className="text-gray-300 mb-6">
-                  I'm always interested in new opportunities and collaborations. Feel free to reach out if you'd like to
-                  discuss projects, opportunities, or just say hello!
+                <h3 className="text-xl font-semibold text-white mb-3">Let&apos;s Connect</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  I&apos;m always interested in new opportunities, collaborations, and exciting projects. Feel free to reach
+                  out — I&apos;d love to hear from you!
                 </p>
               </div>
 
               <div className="space-y-4">
                 <a
                   href="mailto:sushantpatil6217@gmail.com"
-                  className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition-all duration-300 transform hover:translate-x-2"
+                  className="flex items-center gap-3 text-slate-400 hover:text-indigo-300 transition-all group"
                 >
-                  <Mail className="w-5 h-5" />
-                  <span>sushantpatil6217@gmail.com</span>
+                  <div className="p-2 rounded-lg bg-white/5 group-hover:bg-indigo-500/20 transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm">sushantpatil6217@gmail.com</span>
                 </a>
                 <a
                   href="tel:+919975806217"
-                  className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition-all duration-300 transform hover:translate-x-2"
+                  className="flex items-center gap-3 text-slate-400 hover:text-indigo-300 transition-all group"
                 >
-                  <Phone className="w-5 h-5" />
-                  <span>+91 9975806217</span>
+                  <div className="p-2 rounded-lg bg-white/5 group-hover:bg-indigo-500/20 transition-colors">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm">+91 9975806217</span>
                 </a>
-                <div className="flex items-center gap-3 text-gray-300">
-                  <MapPin className="w-5 h-5" />
-                  <span>Kolhapur, Maharashtra</span>
+                <div className="flex items-center gap-3 text-slate-400">
+                  <div className="p-2 rounded-lg bg-white/5">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm">Kolhapur, Maharashtra, India</span>
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-4">
                 <a
                   href="https://linkedin.com/in/thesushpatil"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 bg-gray-700 rounded-full hover:bg-blue-600 transition-all duration-300 transform hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
+                  className="social-icon linkedin"
+                  aria-label="LinkedIn"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
@@ -565,80 +914,76 @@ export default function Portfolio() {
                   href="https://github.com/thesushpatil"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 bg-gray-700 rounded-full hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 hover:shadow-lg"
+                  className="social-icon github"
+                  aria-label="GitHub"
                 >
                   <Github className="w-5 h-5" />
                 </a>
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div
-              className={`transition-all duration-1000 delay-400 ${
-                visibleSections.has("contact") ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
-              }`}
-            >
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
-                    placeholder="Your Name"
-                  />
+            {/* Right: Contact Form */}
+            <div className="md:col-span-3">
+              <form onSubmit={handleSubmit} className="glass-card p-6 sm:p-8 space-y-5">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="contact-name" className="block text-sm font-medium text-slate-300 mb-2">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="contact-name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="contact-email" className="block text-sm font-medium text-slate-300 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="contact-email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="you@email.com"
+                    />
+                  </div>
                 </div>
-
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="contact-subject" className="block text-sm font-medium text-slate-300 mb-2">
                     Subject
                   </label>
                   <input
                     type="text"
-                    id="subject"
+                    id="contact-subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
+                    className="form-input"
                     placeholder="What's this about?"
                   />
                 </div>
-
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-slate-300 mb-2">
                     Message
                   </label>
                   <textarea
-                    id="message"
+                    id="contact-message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400 resize-none"
+                    className="form-input resize-none"
                     placeholder="Tell me about your project, opportunity, or just say hello!"
                   />
                 </div>
@@ -646,17 +991,22 @@ export default function Portfolio() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Sending...
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : formSent ? (
+                    <>
+                      <Star className="w-4 h-4" />
+                      <span>Message Sent!</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      Send Message
+                      <span>Send Message</span>
                     </>
                   )}
                 </button>
@@ -666,12 +1016,50 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 border-t border-gray-800">
+      {/* ====================== FOOTER ====================== */}
+      <footer className="relative z-10 py-10 px-4 border-t border-white/5">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-400">© 2025 Sushant Patil.Lots of ☕ and ❤️</p>
+          <div className="flex justify-center gap-3 mb-4">
+            <a
+              href="https://linkedin.com/in/thesushpatil"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-500 hover:text-indigo-400 transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a
+              href="https://github.com/thesushpatil"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-500 hover:text-indigo-400 transition-colors"
+              aria-label="GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
+            <a
+              href="mailto:sushantpatil6217@gmail.com"
+              className="text-slate-500 hover:text-indigo-400 transition-colors"
+              aria-label="Email"
+            >
+              <Mail className="w-4 h-4" />
+            </a>
+          </div>
+          <p className="text-slate-600 text-sm">
+            © {new Date().getFullYear()} Sushant Patil · Built with lots of ☕ and 💜
+          </p>
         </div>
       </footer>
+
+      {/* ====================== BACK TO TOP ====================== */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className={`back-to-top ${showBackToTop ? "visible" : ""}`}
+        aria-label="Back to top"
+      >
+        <ChevronUp className="w-5 h-5" />
+      </button>
     </div>
   )
 }
